@@ -94,7 +94,7 @@ class AudioEventHandler(
                 && player.humanUsersInCurrentVC.isEmpty()
                 && guildConfigService.fetchGuildConfig(channel.guild.id).isClearOnEmpty) {
             player.stop()
-            player.activeTextChannel?.send(I18n.get(channel.guild).getString("eventAutoStop"))?.subscribe()
+            player.activeTextChannel?.send(I18n.get(channel.guild).getString("eventUsersLeftVCStop"))?.subscribe()
 
             return true
         }
