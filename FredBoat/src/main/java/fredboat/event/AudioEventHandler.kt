@@ -81,12 +81,6 @@ class AudioEventHandler(
         }
     }
 
-    /**
-     * Check if the player should be stopped, if yes it will stop the player and return true
-     * else returns false
-     *
-     * @return Boolean if player has been stopped
-     **/
     private fun checkForAutoStop(channel: VoiceChannel) {
         val player = playerRegistry.getExisting(channel.guild) ?: return
 
