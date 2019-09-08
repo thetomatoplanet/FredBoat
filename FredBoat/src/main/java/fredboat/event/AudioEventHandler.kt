@@ -25,8 +25,8 @@ class AudioEventHandler(
     }
 
     override fun onVoiceLeave(channel: VoiceChannel, member: Member) {
-        if (!checkForAutoStop(channel))
-            checkForAutoPause(channel)
+        checkForAutoStop(channel)
+        checkForAutoPause(channel)
 
         if (!member.isUs) return
         getLink(channel).onDisconnected()
@@ -34,8 +34,8 @@ class AudioEventHandler(
 
     override fun onVoiceMove(oldChannel: VoiceChannel, newChannel: VoiceChannel, member: Member) {
         checkForAutoResume(newChannel, member)
-        if (!checkForAutoStop(newChannel))
-            checkForAutoPause(oldChannel)
+        checkForAutoStop(newChannel)
+        checkForAutoPause(oldChannel)
 
         if (!member.isUs) return
         getLink(newChannel).setChannel(newChannel.id.toString())
@@ -45,23 +45,6 @@ class AudioEventHandler(
             lavalink.onVoiceServerUpdate(voiceServerUpdate)
 
     private fun getLink(channel: VoiceChannel) = lavalink.getLink(channel.guild.idString)
-
-    private fun checkForAutoPause(channelLeft: VoiceChannel) {
-        if (appConfig.continuePlayback) return
-
-        val player = playerRegistry.getExisting(channelLeft.guild.id) ?: return
-
-        //are we in the channel that someone left from?
-        val currentVc = player.currentVoiceChannel
-        if (currentVc != null && currentVc.id != channelLeft.id) {
-            return
-        }
-
-        if (player.getHumanUsersInVC(currentVc).isEmpty() && !player.isPaused) {
-            player.pause()
-            player.activeTextChannel?.send(I18n.get(channelLeft.guild).getString("eventUsersLeftVC"))?.subscribe()
-        }
-    }
 
     private fun checkForAutoResume(joinedChannel: VoiceChannel, joined: Member) {
         val guild = joinedChannel.guild
@@ -81,25 +64,38 @@ class AudioEventHandler(
         }
     }
 
+    private fun checkForAutoPause(channelLeft: VoiceChannel) {
+        if (appConfig.continuePlayback) return
+
+        val player = playerRegistry.getExisting(channelLeft.guild.id) ?: return
+
+        //are we in the channel that someone left from?
+        val currentVc = player.currentVoiceChannel
+        if (currentVc != null && currentVc.id != channelLeft.id) {
+            return
+        }
+
+        if (player.getHumanUsersInVC(currentVc).isEmpty() && !player.isPaused) {
+            player.pause()
+            player.activeTextChannel?.send(I18n.get(channelLeft.guild).getString("eventUsersLeftVC"))?.subscribe()
+        }
+    }
+
     /**
      * Check if the player should be stopped, if yes it will stop the player and return true
      * else returns false
      *
      * @return Boolean if player has been stopped
      **/
-    private fun checkForAutoStop(channel: VoiceChannel): Boolean {
-        val player = playerRegistry.getExisting(channel.guild) ?: return false
+    private fun checkForAutoStop(channel: VoiceChannel) {
+        val player = playerRegistry.getExisting(channel.guild) ?: return
 
-        if (!player.isQueueEmpty
+        if (player.isPlaying
+                && !player.isQueueEmpty
                 && player.humanUsersInCurrentVC.isEmpty()
                 && guildConfigService.fetchGuildConfig(channel.guild.id).isClearOnEmpty) {
             player.stop()
             player.activeTextChannel?.send(I18n.get(channel.guild).getString("eventUsersLeftVCStop"))?.subscribe()
-
-            return true
         }
-
-        return false
     }
-
 }
