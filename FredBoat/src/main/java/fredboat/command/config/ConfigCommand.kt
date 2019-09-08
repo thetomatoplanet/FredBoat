@@ -58,7 +58,7 @@ class ConfigCommand(name: String, vararg aliases: String) : Command(name, *alias
                 .append(context.i18nFormat("configNoArgs", context.guild.name)).append("\n")
                 .append("track_announce = ${gc.isTrackAnnounce}\n")
                 .append("auto_resume = ${gc.isAutoResume}\n")
-                .append("clear_on_empty = ${gc.isClearOnEmpty}")
+                .append("clear_on_empty = ${gc.isClearOnEmpty}\n")
                 .append("```") //opening ``` is part of the configNoArgs language string
 
         context.reply(mb.build())
