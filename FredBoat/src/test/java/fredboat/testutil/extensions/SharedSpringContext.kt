@@ -30,7 +30,14 @@ class SharedSpringContext : ParameterResolver, BeforeAllCallback, AfterEachCallb
         if (application != null) return // Don't start the application again
 
         log.info("Initializing test context")
-        GlobalScope.launch { Launcher.main(emptyArray()) }
+        val job = GlobalScope.launch {
+            try {
+                Launcher.main(emptyArray())
+            } catch (t: Throwable) {
+                log.error("Failed initializing context", t)
+                exitProcess(-1)
+            }
+        }
         val start = currentTimeMillis()
         var i = 0
         while (Launcher.instance == null) {
