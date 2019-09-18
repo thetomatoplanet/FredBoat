@@ -16,7 +16,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.context.support.AbstractApplicationContext
 import java.lang.Thread.sleep
-import java.util.concurrent.TimeoutException
+import kotlin.system.exitProcess
 
 class SharedSpringContext : ParameterResolver, BeforeAllCallback, AfterEachCallback {
 
@@ -34,7 +34,10 @@ class SharedSpringContext : ParameterResolver, BeforeAllCallback, AfterEachCallb
         while (Launcher.instance == null) {
             sleep(1000)
             i++
-            if (i > 60) throw TimeoutException("Context initialization timed out")
+            if (i > 180) {
+                log.error("Context initialization timed out")
+                exitProcess(-1)
+            }
         }
         application = Launcher.springContext
         try {
