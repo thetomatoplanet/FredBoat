@@ -17,7 +17,7 @@ subprojects {
             //@formatter:off
 
             //plugin versions
-            gradleGitVersion        = '1.4.22'
+            gradleGitVersion        = '2.1.0'
             shadowVersion           = '2.0.3'
             springBootVersion       = '2.0.1.RELEASE'
             propDepsVersion         = '0.0.9.RELEASE'
