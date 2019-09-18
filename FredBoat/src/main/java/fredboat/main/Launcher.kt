@@ -7,7 +7,6 @@ import fredboat.config.property.ConfigPropertiesProvider
 import fredboat.feature.I18n
 import fredboat.util.AppInfo
 import fredboat.util.GitRepoState
-import fredboat.util.TextUtils
 import org.json.JSONObject
 import org.slf4j.LoggerFactory
 import org.springframework.boot.ApplicationArguments
@@ -195,7 +194,7 @@ class Launcher(
                     + "\n\tVersion:       " + AppInfo.getAppInfo().VERSION
                     + "\n\tBuild:         " + AppInfo.getAppInfo().BUILD_NUMBER
                     + "\n\tCommit:        " + GitRepoState.getGitRepositoryState().commitIdAbbrev + " (" + GitRepoState.getGitRepositoryState().branch + ")"
-                    + "\n\tCommit time:   " + TextUtils.asTimeInCentralEurope(GitRepoState.getGitRepositoryState().commitTime * 1000)
+                    + "\n\tCommit time:   " + GitRepoState.getGitRepositoryState().commitTime
                     + "\n\tJVM:           " + System.getProperty("java.version")
                     + "\n\tLavaplayer     " + PlayerLibrary.VERSION
                     + "\n")

@@ -34,7 +34,6 @@ import fredboat.commandmeta.abs.IInfoCommand
 import fredboat.messaging.internal.Context
 import fredboat.shared.constant.BotConstants
 import fredboat.util.GitRepoState
-import fredboat.util.TextUtils
 import java.awt.Color
 import java.util.regex.Pattern
 
@@ -87,14 +86,12 @@ class GitInfoCommand(name: String, vararg aliases: String) : Command(name, *alia
             title = "Git info of this build"
             color = Color(240, 81, 51).rgb //git-scm color
             thumbnail = octocats.randomImageUrl
-            try {
-                timestamp = gitRepoState.commitTime * 1000L
-            } catch (ignored: NumberFormatException) {}
+
             field("Commit info", gitRepoState.commitMessageFull, false)
             field("Commit on Github", url, false)
-            field("Commit timestamp", TextUtils.asTimeInCentralEurope(gitRepoState.commitTime * 1000L), true)
+            field("Commit timestamp", gitRepoState.commitTime, true)
             field("Branch", gitRepoState.branch, true)
-            field("Commited by", gitRepoState.commitUserName, true)
+            field("Committed by", gitRepoState.commitUserName, true)
             footer {
                 text = "Built on"
                 iconUrl = "http://i.imgur.com/RjWwxlg.png"
