@@ -15,6 +15,7 @@ import org.junit.jupiter.api.extension.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.context.support.AbstractApplicationContext
+import java.lang.System.currentTimeMillis
 import java.lang.Thread.sleep
 import kotlin.system.exitProcess
 
@@ -30,15 +31,17 @@ class SharedSpringContext : ParameterResolver, BeforeAllCallback, AfterEachCallb
 
         log.info("Initializing test context")
         GlobalScope.launch { Launcher.main(emptyArray()) }
+        val start = currentTimeMillis()
         var i = 0
         while (Launcher.instance == null) {
             sleep(1000)
             i++
-            if (i > 180) {
+            if (currentTimeMillis() - start > 3 * 60000) {
                 log.error("Context initialization timed out")
                 exitProcess(-1)
             }
         }
+        log.info("Acquired Spring context after ${(currentTimeMillis() - start)/1000} seconds")
         application = Launcher.springContext
         try {
             // Context may or may not be refreshed yet. Refreshing too many times will throw an exception
