@@ -73,7 +73,7 @@ class RemoteEvalCommand(
             return null
         }
 
-        val sentinels = context.sentinel.tracker.sentinels.sortedBy { it.shardStart }
+        val sentinels = context.sentinel.tracker.sentinels.sortedBy { it.key }
 
         var kill = false
         var requestAll = false
@@ -109,7 +109,7 @@ class RemoteEvalCommand(
                     sentinels.find { hello -> hello.key == it }
                 }.toSet()
 
-        if (requestAll) selectedSentinels = sentinels.asSequence().sortedBy { it.shardStart }.toSet()
+        if (requestAll) selectedSentinels = sentinels.asSequence().sortedBy { it.key }.toSet()
 
         return ParseResult(selectedSentinels, EvalRequest(
                 source, timeout, kill

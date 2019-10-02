@@ -67,8 +67,7 @@ class RabbitConfig {
             private val key: String) {
         fun send() {
             rabbitTemplate.convertAndSend(SentinelExchanges.EVENTS, SentinelHello(
-                    0,
-                    1,
+                    setOf(0),
                     1,
                     key
             ))

@@ -68,16 +68,14 @@ class SentinelTracker(
         get() = map.values.toSet()
 
     fun onHello(hello: SentinelHello) = hello.run {
-        log.info("Received hello from $key with shards [$shardStart;$shardEnd] \uD83D\uDC4B")
+        log.info("Received hello from $key \uD83D\uDC4B")
 
         if (shardCount != appConfig.shardCount) {
             throw IllegalStateException("Received SentinelHello from $key with shard count $shardCount shards, " +
                     "but we are configured for ${appConfig.shardCount}!")
         }
 
-        (shardStart..shardEnd).forEach {
-            map[it] = hello
-        }
+        shards.forEach { map[it] = hello }
     }
 
     fun getHello(shardId: Int) = map[shardId]
