@@ -5,7 +5,9 @@ import com.fredboat.sentinel.entities.AppendSessionEvent
 import com.fredboat.sentinel.entities.RemoveSessionEvent
 import com.fredboat.sentinel.entities.RunSessionRequest
 import com.fredboat.sentinel.entities.SyncSessionQueueRequest
+import fredboat.config.ApplicationInfo
 import fredboat.config.property.AppConfigProperties
+import fredboat.shared.constant.BotConstants.FREDBOAT_APPLICATION_ID
 import fredboat.util.DiscordUtil
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -15,24 +17,34 @@ import java.util.concurrent.ConcurrentHashMap
 
 @Service
 class SentinelSessionController(
-        val rabbit: RabbitTemplate,
-        val appConfig: AppConfigProperties,
-        val sentinelTracker: SentinelTracker
+        private val rabbit: RabbitTemplate,
+        private val appConfig: AppConfigProperties,
+        private val sentinelTracker: SentinelTracker,
+        private val appInfo: ApplicationInfo
 ) {
+
     companion object {
-        private const val QUEUE_FACTOR = 16
+        private val log: Logger = LoggerFactory.getLogger(SentinelSessionController::class.java)
     }
 
-    private val queues = (0 until QUEUE_FACTOR)
+    private val queueFactor = if (appInfo.id == FREDBOAT_APPLICATION_ID) {
+        log.info("Large FredBoat detected: ACTIVATING 16X HYPERSPACE BOOSTERS")
+        16
+    } else {
+        log.info("Using single identify queue.")
+        1
+    }
+
+    private val queues = (0 until queueFactor)
             .map { SessionQueue(it, rabbit, appConfig, sentinelTracker) }
             .toList()
 
     fun appendSession(event: AppendSessionEvent) {
-        queues[event.shardId % QUEUE_FACTOR].appendSession(event)
+        queues[event.shardId % queueFactor].appendSession(event)
     }
 
     fun removeSession(event: RemoveSessionEvent) {
-        queues[event.shardId % QUEUE_FACTOR].removeSession(event)
+        queues[event.shardId % queueFactor].removeSession(event)
     }
 }
 
@@ -54,6 +66,8 @@ private class SessionQueue(
     private val homeShardId = DiscordUtil.getShardId(HOME_GUILD_ID, appConfig)
     private val queued = ConcurrentHashMap<Int, AppendSessionEvent>()
     private var lastSyncRequest = 0L
+
+    init { start() }
 
     fun appendSession(event: AppendSessionEvent) {
         event.totalShards.assertShardCount()
