@@ -11,9 +11,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.stereotype.Service
-import java.lang.Thread.sleep
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.concurrent.thread
 
 @Service
 class SentinelSessionController(
@@ -21,24 +19,41 @@ class SentinelSessionController(
         val appConfig: AppConfigProperties,
         val sentinelTracker: SentinelTracker
 ) {
+    companion object {
+        private const val QUEUE_FACTOR = 16
+    }
+
+    private val queues = (0 until QUEUE_FACTOR)
+            .map { SessionQueue(it, rabbit, appConfig, sentinelTracker) }
+            .toList()
+
+    fun appendSession(event: AppendSessionEvent) {
+        queues[event.shardId % QUEUE_FACTOR].appendSession(event)
+    }
+
+    fun removeSession(event: RemoveSessionEvent) {
+        queues[event.shardId % QUEUE_FACTOR].removeSession(event)
+    }
+}
+
+private class SessionQueue(
+        private val num: Int,
+        private val rabbit: RabbitTemplate,
+        private val appConfig: AppConfigProperties,
+        private val sentinelTracker: SentinelTracker
+) : Thread("SessionQueue-$num") {
 
     companion object {
-        private val log: Logger = LoggerFactory.getLogger(SentinelSessionController::class.java)
+        private val log: Logger = LoggerFactory.getLogger(SessionQueue::class.java)
         private const val MAX_HELLO_AGE_MS = 40000
         private const val HOME_GUILD_ID = 174820236481134592L // FredBoat Hangout is to be prioritized
         private const val IDENTIFY_DELAY = 5000L
         private const val QUEUE_SYNC_INTERVAL = 60000 // 1 minute
     }
 
-    @Suppress("LeakingThis")
-    val homeShardId = DiscordUtil.getShardId(HOME_GUILD_ID, appConfig)
-    val queued = ConcurrentHashMap<Int, AppendSessionEvent>()
-    var worker: Thread? = null
+    private val homeShardId = DiscordUtil.getShardId(HOME_GUILD_ID, appConfig)
+    private val queued = ConcurrentHashMap<Int, AppendSessionEvent>()
     private var lastSyncRequest = 0L
-
-    init {
-        startWorker()
-    }
 
     fun appendSession(event: AppendSessionEvent) {
         event.totalShards.assertShardCount()
@@ -52,10 +67,8 @@ class SentinelSessionController(
         log.info("Removed ${event.shardId}")
     }
 
-    private fun Int.assertShardCount() {
-        if (this != appConfig.shardCount) {
-            throw IllegalStateException("Mismatching shard count. Got $this, expected ${appConfig.shardCount}")
-        }
+    private fun Int.assertShardCount() = check(this == appConfig.shardCount) {
+        "Mismatching shard count. Got $this, expected ${appConfig.shardCount}"
     }
 
     fun getNextShard(): AppendSessionEvent? {
@@ -80,9 +93,10 @@ class SentinelSessionController(
     }
 
     private fun workerLoop() {
-        if (lastSyncRequest + QUEUE_SYNC_INTERVAL < System.currentTimeMillis()) {
+        if (num == 0 && lastSyncRequest + QUEUE_SYNC_INTERVAL < System.currentTimeMillis()) {
             // This is meant to deal with race conditions where our queues are out of sync
             // Specifically, this tends to happen when restarting sentinel at the same time as FredBoat
+            // We'll also limit this to only worker 0 to prevent spam
             rabbit.convertAndSend(SentinelExchanges.FANOUT, "", SyncSessionQueueRequest())
             lastSyncRequest = System.currentTimeMillis()
         }
@@ -111,19 +125,14 @@ class SentinelSessionController(
         queued.remove(next.shardId)
     }
 
-    private fun startWorker() {
-        if (worker?.isAlive == true) throw IllegalStateException("Worker is already alive")
-        worker = thread(name = "session-worker") {
-            log.info("Started session worker")
-            while (true) {
-                try {
-                    workerLoop()
-                } catch (e: Exception) {
-                    log.error("Caught exception in session worker loop", e)
-                    sleep(500)
-                }
+    override fun run() {
+        while (true) {
+            try {
+                workerLoop()
+            } catch (e: Exception) {
+                log.error("Caught exception in session worker loop", e)
+                sleep(500)
             }
         }
     }
-
 }
