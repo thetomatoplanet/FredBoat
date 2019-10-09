@@ -30,20 +30,19 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException
 import com.sedmelluq.discord.lavaplayer.track.*
 import fredboat.audio.queue.PlaylistInfo
 import fredboat.definitions.SearchProvider
+import fredboat.feature.togglz.FeatureFlags
 import fredboat.util.rest.SpotifyAPIWrapper
 import fredboat.util.rest.TrackSearcher
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.reactor.mono
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
 import java.io.DataInput
 import java.io.DataOutput
-import java.io.IOException
-import java.util.ArrayList
-import java.util.Arrays
-import java.util.concurrent.*
-import java.util.regex.Matcher
+import java.util.*
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
 
 /**
@@ -79,6 +78,13 @@ class SpotifyPlaylistSourceManager(private val trackSearcher: TrackSearcher, pri
     }
 
     override fun loadItem(manager: DefaultAudioPlayerManager, ar: AudioReference): AudioItem? {
+        if (FeatureFlags.STOP_SPOTIFY.isActive) {
+            throw FriendlyException(
+                    "Spotify integration is disabled to alleviate YouTube API ratelimiting",
+                    FriendlyException.Severity.SUSPICIOUS,
+                    RuntimeException()
+            )
+        }
 
         val data = parse(ar.identifier) ?: return null
         val spotifyListId = data[0]

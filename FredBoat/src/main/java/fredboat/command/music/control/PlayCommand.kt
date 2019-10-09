@@ -36,6 +36,7 @@ import fredboat.commandmeta.abs.ICommandRestricted
 import fredboat.commandmeta.abs.IMusicCommand
 import fredboat.definitions.PermissionLevel
 import fredboat.definitions.SearchProvider
+import fredboat.feature.togglz.FeatureFlags
 import fredboat.main.Launcher
 import fredboat.messaging.internal.Context
 import fredboat.shared.constant.BotConstants
@@ -133,6 +134,10 @@ class PlayCommand(private val playerLimiter: PlayerLimiter, private val trackSea
                 .subscribe{ outMsg ->
             val list: AudioPlaylist?
             try {
+                if (FeatureFlags.STOP_YOUTUBE.isActive && searchProviders.contains(SearchProvider.YOUTUBE)) {
+                    context.reply("Youtube track loading has been manually disabled for a few minutes to stop this bot from being blocked by them. Please try again in a few minutes.")
+                    return@subscribe
+                }
                 list = trackSearcher.searchForTracks(query, searchProviders)
             } catch (e: TrackSearcher.SearchingException) {
                 context.reply(context.i18n("playYoutubeSearchError"))
