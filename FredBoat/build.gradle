@@ -39,7 +39,7 @@ bootJar {
 dependencies {
     compile project(':Shared')
     compile group: 'com.github.FredBoat.sentinel', name: 'sentinel-shared', version: sentinelVersion
-    compile group: 'com.sedmelluq', name: 'lavaplayer', version: lavaplayerVersion
+    compile group: 'com.github.devoxin', name: 'lavaplayer', version: lavaplayerVersion
 
     if (System.getenv('dev') == 'true') {
         compile(group: 'lavalink', name: 'Lavalink-Client', version: '-SNAPSHOT')
