@@ -2,7 +2,6 @@ allprojects {
     repositories {
         mavenCentral()                     // main maven repo
         jcenter()                          // some other stuff
-        maven { url 'https://dl.bintray.com/napster/SqlSauce' }
         maven { url 'https://dl.bintray.com/palantir/releases' }
         mavenLocal()                       // useful for developing
         maven { url "https://jitpack.io" } // build projects directly from github
@@ -63,7 +62,7 @@ subprojects {
         kotlinVersion               = "${kotlinVersion}"
 
         //audio deps
-        lavaplayerVersion           = 'e2dd8dc0'
+        lavaplayerVersion           = '96cc8e5b'
         lavalinkVersion             = 'cab6c587'
 
         //utility deps
