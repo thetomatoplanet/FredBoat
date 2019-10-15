@@ -31,6 +31,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -53,12 +54,13 @@ public class AppConfigProperties implements AppConfig {
     private String game = "";
     private boolean continuePlayback = false;
     private int shardCount = 1;
-
     //undocumented
     private int playerLimit = -1;
 
-    private boolean distributionLogged = false;
+    private String balancingBlock = "";
+    private List<String> excludedIps = Collections.emptyList();
 
+    private boolean distributionLogged = false;
 
     @Override
     public DistributionEnum getDistribution() {
@@ -112,6 +114,16 @@ public class AppConfigProperties implements AppConfig {
         return shardCount;
     }
 
+    @Override
+    public String getBalancingBlock() {
+        return balancingBlock;
+    }
+
+    @Override
+    public List<String> getExcludedIps() {
+        return excludedIps;
+    }
+
     public void setDevelopment(boolean development) {
         this.development = development;
     }
@@ -155,5 +167,13 @@ public class AppConfigProperties implements AppConfig {
 
     public void setShardCount(int shardCount) {
         this.shardCount = shardCount;
+    }
+
+    public void setBalancingBlock(String balancingBlock) {
+        this.balancingBlock = balancingBlock;
+    }
+
+    public void setExcludedIps(List<String> excludedIps) {
+        this.excludedIps = excludedIps;
     }
 }
