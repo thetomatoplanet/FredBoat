@@ -112,6 +112,10 @@ class MockConfig : AppConfig, AudioSourcesConfig, Credentials, EventLoggerConfig
 
     override fun getWastebinPass() = ""
 
+    override fun getBalancingBlock() = ""
+
+    override fun getExcludedIps() = emptyList<String>()
+
     override fun getQuarterdeck() = object : BackendConfig.Quarterdeck {
         override fun getHost() = "http://localhost:4269"
         override fun getUser() = "test"
