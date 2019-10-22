@@ -26,8 +26,8 @@ package fredboat.config.property;
 
 import fredboat.commandmeta.CommandInitializer;
 import fredboat.shared.constant.DistributionEnum;
-import org.springframework.lang.NonNull;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 /**
@@ -86,9 +86,6 @@ public interface AppConfig {
 
     boolean getContinuePlayback();
 
-    @NonNull
-    String getBalancingBlock();
-
-    @NonNull
-    List<String> getExcludedIps();
+    @Nullable
+    RatelimitConfig getRatelimit();
 }

@@ -36,8 +36,10 @@ import com.sedmelluq.discord.lavaplayer.source.soundcloud.SoundCloudAudioSourceM
 import com.sedmelluq.discord.lavaplayer.source.twitch.TwitchStreamAudioSourceManager
 import com.sedmelluq.discord.lavaplayer.source.vimeo.VimeoAudioSourceManager
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager
+import com.sedmelluq.discord.lavaplayer.tools.Ipv4Block
 import com.sedmelluq.discord.lavaplayer.tools.Ipv6Block
-import com.sedmelluq.discord.lavaplayer.tools.http.BalancingIpv6RoutePlanner
+import com.sedmelluq.discord.lavaplayer.tools.http.BalancingIpRoutePlanner
+import com.sedmelluq.discord.lavaplayer.tools.http.RotatingIpRoutePlanner
 import fredboat.audio.source.PlaylistImportSourceManager
 import fredboat.audio.source.SpotifyPlaylistSourceManager
 import fredboat.config.property.AppConfig
@@ -46,12 +48,13 @@ import fredboat.util.rest.SpotifyAPIWrapper
 import fredboat.util.rest.TrackSearcher
 import org.apache.http.client.config.CookieSpecs
 import org.apache.http.client.config.RequestConfig
+import org.apache.http.conn.routing.HttpRoutePlanner
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.config.ConfigurableBeanFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Scope
-import java.net.Inet6Address
+import java.net.InetAddress
 import java.util.*
 import java.util.function.Predicate
 
@@ -126,6 +129,7 @@ class AudioPlayerManagerConfiguration {
     // it is important that the list is ordered with the httpSourceManager being last
     @Bean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+    @Suppress("DuplicatedCode")
     fun getConfiguredAudioSourceManagers(audioSourcesConfig: AudioSourcesConfig,
                                          youtubeAudioSourceManager: YoutubeAudioSourceManager,
                                          soundCloudAudioSourceManager: SoundCloudAudioSourceManager,
@@ -202,15 +206,11 @@ class AudioPlayerManagerConfiguration {
 
     @Bean(destroyMethod = "")
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    fun youtubeAudioSourceManager(appConfig: AppConfig): YoutubeAudioSourceManager {
+    fun youtubeAudioSourceManager(routePlanner: HttpRoutePlanner?): YoutubeAudioSourceManager {
         val youtubeAudioSourceManager = YoutubeAudioSourceManager()
 
-        if (appConfig.balancingBlock.isNotBlank()) {
-            val ipv6Block = Ipv6Block(appConfig.balancingBlock)
-            val blacklist = appConfig.excludedIps.map { Inet6Address.getByName(it) }
-            val filter = Predicate<Inet6Address> { !blacklist.contains(it) }
-            val router = BalancingIpv6RoutePlanner(ipv6Block, filter)
-            youtubeAudioSourceManager.configureBuilder { it.setRoutePlanner(router) }
+        if (routePlanner != null) youtubeAudioSourceManager.configureBuilder {
+            it.setRoutePlanner(routePlanner)
         }
 
         youtubeAudioSourceManager.configureRequests { config ->
@@ -255,4 +255,23 @@ class AudioPlayerManagerConfiguration {
     @Bean(destroyMethod = "")
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     fun httpSourceManager() = HttpAudioSourceManager()
+
+    @Bean
+    fun routePlanner(appConfig: AppConfig): HttpRoutePlanner? {
+        val ratelimitConfig = appConfig.ratelimit ?: return null
+        val blacklisted = ratelimitConfig.excludedIps.map { InetAddress.getByName(it) }
+        val filter = Predicate<InetAddress> {
+            !blacklisted.contains(it)
+        }
+        val ipBlock = when {
+            Ipv4Block.isIpv4CidrBlock(ratelimitConfig.balancingBlock) -> Ipv4Block(ratelimitConfig.balancingBlock)
+            Ipv6Block.isIpv6CidrBlock(ratelimitConfig.balancingBlock) -> Ipv6Block(ratelimitConfig.balancingBlock)
+            else -> throw RuntimeException("Invalid IP Block, make sure to provide a valid CIDR notation")
+        }
+        return when {
+            ratelimitConfig.strategy.toLowerCase().trim() == "rotateonban" -> RotatingIpRoutePlanner(ipBlock, filter)
+            ratelimitConfig.strategy.toLowerCase().trim() == "loadbalance" -> BalancingIpRoutePlanner(ipBlock, filter)
+            else -> throw RuntimeException("Invalid strategy, only RotateOnBan and LoadBalance can be used")
+        }
+    }
 }
