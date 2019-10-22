@@ -125,5 +125,5 @@ class MockConfig : AppConfig, AudioSourcesConfig, Credentials, EventLoggerConfig
         override fun getBasicAuth() =  okhttp3.Credentials.basic(user, pass)
     }
 
-    override fun getRatelimit() = RatelimitConfig()
+    override fun getRatelimit(): RatelimitConfig? = null
 }
