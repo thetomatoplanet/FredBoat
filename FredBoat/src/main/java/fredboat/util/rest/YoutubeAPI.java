@@ -26,8 +26,10 @@
 package fredboat.util.rest;
 
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import com.sedmelluq.discord.lavaplayer.track.BasicAudioPlaylist;
 import fredboat.config.property.Credentials;
 import fredboat.main.BotController;
@@ -51,6 +53,7 @@ public class YoutubeAPI {
     public static final String YOUTUBE_VIDEO_VERBOSE = "https://www.googleapis.com/youtube/v3/videos?part=contentDetails,snippet";
     public static final String YOUTUBE_SEARCH = "https://www.googleapis.com/youtube/v3/search?part=snippet";
     public static final String YOUTUBE_CHANNEL = "https://www.googleapis.com/youtube/v3/channels?part=snippet&fields=items(snippet/thumbnails)";
+    public static final String YOUTUBE_VIDEO_BASE_URL = "https://www.youtube.com/watch?v=";
     private final Credentials credentials;
 
     public YoutubeAPI(Credentials credentials) {
@@ -159,7 +162,13 @@ public class YoutubeAPI {
         for (String id : ids) {
             try {
                 YoutubeVideo vid = getVideoFromID(id, true);
-                tracks.add(sourceManager.buildTrackObject(id, vid.name, vid.channelTitle, vid.isStream, vid.getDurationInMillis()));
+                AudioTrackInfo audioTrackInfo = new AudioTrackInfo(vid.name,
+                        vid.channelTitle,
+                        vid.getDurationInMillis(),
+                        id,
+                        vid.isStream,
+                        YOUTUBE_VIDEO_BASE_URL + id);
+                tracks.add(new YoutubeAudioTrack(audioTrackInfo, sourceManager));
             } catch (RuntimeException e) {
                 throw new TrackSearcher.SearchingException("Could not look up details for youtube video with id " + id, e);
             }
