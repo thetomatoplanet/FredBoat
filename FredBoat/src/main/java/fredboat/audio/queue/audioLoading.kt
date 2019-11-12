@@ -66,12 +66,6 @@ class AudioLoader(private val ratelimiter: Ratelimiter, internal val trackProvid
     }
 
     fun loadAsync(ic: IdentifierContext) {
-        if (FeatureFlags.STOP_YOUTUBE.isActive && ic.identifier.isIdentifierYoutube()) {
-            if (ic.isQuiet) return;
-            ic.textChannel.send("Youtube track loading has been manually disabled for a few minutes to stop this bot from being blocked by them. Please try again in a few minutes.").subscribe()
-            return;
-        }
-
         if (ratelimitIfSlowLoadingPlaylistAndAnnounce(ic)) {
             identifierQueue.add(ic)
             if (!isLoading) {
@@ -79,8 +73,6 @@ class AudioLoader(private val ratelimiter: Ratelimiter, internal val trackProvid
             }
         }
     }
-
-    private fun String.isIdentifierYoutube() = contains("youtube") || contains("youtu.be")
 
     internal fun loadNextAsync() {
         val context = identifierQueue.poll()

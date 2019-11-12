@@ -45,13 +45,7 @@ public enum FeatureFlags implements Feature {
     DISABLE_NOWPLAYING_WITH_YTAPI,
 
     @Label("When YouTube fails to load, display link to block notice")
-    SHOW_YOUTUBE_RATELIMIT_WARNING,
-
-    @Label("Stop loading youtube tracks")
-    STOP_YOUTUBE,
-
-    @Label("Disable Spotify integration")
-    STOP_SPOTIFY,
+    SHOW_YOUTUBE_RATELIMIT_WARNING
 
     ;
 
