@@ -59,6 +59,11 @@ config:
   game:              ""           # Set the displayed game/status. Leave empty quote marks for the default status
   continuePlayback:  false        # Set to true to force the player to continue playback even if left alone
   shardCount: 1                   # The number of shards this bot supports. Leave at 1 unless you know what you are doing.
+# ratelimit:
+#   ipBlocks: ["127.0.0.1/31", "127.0.0.3/32", "..."] # list of ip blocks
+#   excludedIps: ["...", "..."] # ips which should be explicit excluded from usage by lavalink
+#   strategy: "RotateOnBan" # RotateOnBan | LoadBalance | NanoSwitch | RotatingNanoSwitch
+#   searchTriggersFail: true # Whether a search 429 should trigger marking the ip as failing
 
 server:
   port: 1356                      # Change the port of the API FredBoat exposes
