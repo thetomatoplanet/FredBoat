@@ -42,7 +42,10 @@ public enum FeatureFlags implements Feature {
     FORCE_SOUNDCLOUD_SEARCH,
 
     @Label("Disable the use of the Youtube API with ;;nowplaying")
-    DISABLE_NOWPLAYING_WITH_YTAPI
+    DISABLE_NOWPLAYING_WITH_YTAPI,
+
+    @Label("When YouTube fails to load, display link to block notice")
+    SHOW_YOUTUBE_RATELIMIT_WARNING
 
     ;
 
