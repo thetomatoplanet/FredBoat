@@ -233,7 +233,7 @@ class AudioPlayerManagerConfiguration {
 
     @Bean(destroyMethod = "")
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    fun soundCloudAudioSourceManager() = SoundCloudAudioSourceManager()
+    fun soundCloudAudioSourceManager() = SoundCloudAudioSourceManager.createDefault()!!
 
     @Bean(destroyMethod = "")
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
