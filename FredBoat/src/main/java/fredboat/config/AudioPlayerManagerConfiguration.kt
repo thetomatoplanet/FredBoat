@@ -36,7 +36,7 @@ import com.sedmelluq.discord.lavaplayer.source.soundcloud.SoundCloudAudioSourceM
 import com.sedmelluq.discord.lavaplayer.source.twitch.TwitchStreamAudioSourceManager
 import com.sedmelluq.discord.lavaplayer.source.vimeo.VimeoAudioSourceManager
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager
-import com.sedmelluq.lava.extensions.youtuberotator.YoutubeIpRotator
+import com.sedmelluq.lava.extensions.youtuberotator.YoutubeIpRotatorSetup
 import com.sedmelluq.lava.extensions.youtuberotator.planner.AbstractRoutePlanner
 import com.sedmelluq.lava.extensions.youtuberotator.planner.BalancingIpRoutePlanner
 import com.sedmelluq.lava.extensions.youtuberotator.planner.NanoIpRoutePlanner
@@ -218,7 +218,7 @@ class AudioPlayerManagerConfiguration {
 
         val youtube = YoutubeAudioSourceManager()
         if (routePlanner != null) {
-            YoutubeIpRotator.setup(youtube, routePlanner)
+            YoutubeIpRotatorSetup(routePlanner).forSource(youtube).setup()
         }
 
         youtubeAudioSourceManager.configureRequests { config ->
@@ -233,7 +233,7 @@ class AudioPlayerManagerConfiguration {
 
     @Bean(destroyMethod = "")
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    fun soundCloudAudioSourceManager() = SoundCloudAudioSourceManager.createDefault()!!
+    fun soundCloudAudioSourceManager(): SoundCloudAudioSourceManager = SoundCloudAudioSourceManager.createDefault()
 
     @Bean(destroyMethod = "")
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
