@@ -65,7 +65,7 @@ services:
     labels:
     - "com.centurylinklabs.watchtower.enable=true"
     ports:
-    - 127.0.01:2333:2333
+    - 127.0.0.1:2333:2333
     volumes:
     - ./lavalink.yml:/opt/Lavalink/application.yaml
     - ./lavalink_logs:/opt/Lavalink/logs
@@ -108,7 +108,7 @@ services:
     depends_on:
     - db
     ports:
-    - 127.0.01:4269:4269
+    - 127.0.0.1:4269:4269
     volumes:
     - ./quarterdeck.yml:/opt/Quarterdeck/quarterdeck.yaml
     - ./quarterdeck_logs:/opt/Quarterdeck/logs

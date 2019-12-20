@@ -34,6 +34,7 @@ import org.junit.jupiter.api.extension.ExtensionContext
 import org.slf4j.LoggerFactory
 import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.system.exitProcess
 
 
 /**
@@ -56,6 +57,7 @@ class DockerExtension : BeforeAllCallback {
 
         internal var docker: DockerComposeRule = DockerComposeRule.builder()
                 .pullOnStartup(true)
+                .saveLogsTo("docker-test-logs")
                 .file("src/test/resources/docker-compose.yaml")
                 .projectName(ProjectName.fromString("integration"))
                 .shutdownStrategy(identifyShutdownStrategy())
@@ -97,7 +99,7 @@ class DockerExtension : BeforeAllCallback {
             docker.before()
         } catch (e: Exception) {
             log.error("Docker failed, exiting...", e)
-            System.exit(-1)
+            exitProcess(-1)
         }
 
         hasSetup = true

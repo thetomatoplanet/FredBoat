@@ -36,6 +36,7 @@ import fredboat.audio.source.PlaylistImportSourceManager
 import fredboat.audio.source.PlaylistImporter
 import fredboat.audio.source.SpotifyPlaylistSourceManager
 import fredboat.feature.metrics.Metrics
+import fredboat.feature.togglz.FeatureFlags
 import fredboat.util.TextUtils
 import fredboat.util.extension.escapeAndDefuse
 import fredboat.util.localMessageBuilder
@@ -65,7 +66,6 @@ class AudioLoader(private val ratelimiter: Ratelimiter, internal val trackProvid
     }
 
     fun loadAsync(ic: IdentifierContext) {
-
         if (ratelimitIfSlowLoadingPlaylistAndAnnounce(ic)) {
             identifierQueue.add(ic)
             if (!isLoading) {
@@ -154,12 +154,19 @@ class AudioLoader(private val ratelimiter: Ratelimiter, internal val trackProvid
     internal fun handleThrowable(ic: IdentifierContext, th: Throwable) {
         try {
             if (th is FriendlyException) {
-                if (th.severity == FriendlyException.Severity.COMMON) {
-                    ic.reply(ic.i18nFormat("loadErrorCommon", ic.identifier, th.message!!))
-                } else {
-                    ic.reply(ic.i18nFormat("loadErrorSusp", ic.identifier))
-                    val exposed = if (th.cause == null) th else th.cause
-                    TextUtils.handleException("Failed to load a track", exposed, ic)
+                when {
+                    th.severity == FriendlyException.Severity.COMMON ->
+                        ic.reply(ic.i18nFormat("loadErrorCommon", ic.identifier, th.message!!))
+                    FeatureFlags.SHOW_YOUTUBE_RATELIMIT_WARNING.isActive -> {
+                        val msg = "Error occurred when loading info for `${ic.identifier}`" +
+                                "\nThis may be YouTube blocking us. See <https://fredboat.com/docs/youtube-blockade>"
+                        ic.reply(msg)
+                    }
+                    else -> {
+                        ic.reply(ic.i18nFormat("loadErrorSusp", ic.identifier))
+                        val exposed = if (th.cause == null) th else th.cause
+                        TextUtils.handleException("Failed to load a track", exposed, ic)
+                    }
                 }
             } else {
                 ic.reply(ic.i18n("loadErrorSusp"))

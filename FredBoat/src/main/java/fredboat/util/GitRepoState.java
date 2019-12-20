@@ -56,7 +56,7 @@ public class GitRepoState {
     public final String commitUserEmail;
     public final String commitMessageFull;
     public final String commitMessageShort;
-    public final long commitTime;
+    public final String commitTime;
 
     @SuppressWarnings("ConstantConditions")
     public GitRepoState(String propsName) {
@@ -77,6 +77,6 @@ public class GitRepoState {
         this.commitUserEmail = String.valueOf(properties.getOrDefault("git.commit.user.email", ""));
         this.commitMessageFull = String.valueOf(properties.getOrDefault("git.commit.message.full", ""));
         this.commitMessageShort = String.valueOf(properties.getOrDefault("git.commit.message.short", ""));
-        this.commitTime = Long.parseLong(String.valueOf(properties.getOrDefault("git.commit.time", "0"))); //epoch seconds
+        this.commitTime = (String) properties.getOrDefault("git.commit.time", "unknown");
     }
 }
