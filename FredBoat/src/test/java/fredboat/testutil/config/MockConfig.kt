@@ -24,7 +24,13 @@
 
 package fredboat.testutil.config
 
-import fredboat.config.property.*
+import fredboat.config.property.AppConfig
+import fredboat.config.property.AudioSourcesConfig
+import fredboat.config.property.BackendConfig
+import fredboat.config.property.Credentials
+import fredboat.config.property.EventLoggerConfig
+import fredboat.config.property.LavalinkConfig
+import fredboat.config.property.RatelimitConfig
 import fredboat.shared.constant.DistributionEnum
 import fredboat.testutil.sentinel.Raws
 import org.springframework.context.annotation.Primary
@@ -118,4 +124,6 @@ class MockConfig : AppConfig, AudioSourcesConfig, Credentials, EventLoggerConfig
         override fun getPass() = "test"
         override fun getBasicAuth() =  okhttp3.Credentials.basic(user, pass)
     }
+
+    override fun getRatelimit(): RatelimitConfig? = null
 }

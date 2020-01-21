@@ -247,7 +247,7 @@ class SayCommandTest : IntegrationTest() {
 }
 ```
 
-The above command emulates that a user invokes the given command. Beore this test is executed, a set of Docker services
+The above command emulates that a user invokes the given command. Before this test is executed, a set of Docker services
 (Quarterdeck, Lavalink, Postgres) are set up, and the Spring Boot application has been loaded. A fake Sentinel
 implementation intercepts all requests so that they can be asserted against. It is also possible to intercept
 other requests, like voice join requests, edit requests, etc.

@@ -53,12 +53,11 @@ public class AppConfigProperties implements AppConfig {
     private String game = "";
     private boolean continuePlayback = false;
     private int shardCount = 1;
-
     //undocumented
     private int playerLimit = -1;
+    private RatelimitConfig ratelimit;
 
     private boolean distributionLogged = false;
-
 
     @Override
     public DistributionEnum getDistribution() {
@@ -112,6 +111,11 @@ public class AppConfigProperties implements AppConfig {
         return shardCount;
     }
 
+    @Override
+    public RatelimitConfig getRatelimit() {
+        return ratelimit;
+    }
+
     public void setDevelopment(boolean development) {
         this.development = development;
     }
@@ -155,5 +159,9 @@ public class AppConfigProperties implements AppConfig {
 
     public void setShardCount(int shardCount) {
         this.shardCount = shardCount;
+    }
+
+    public void setRatelimit(RatelimitConfig ratelimit) {
+        this.ratelimit = ratelimit;
     }
 }
