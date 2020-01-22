@@ -28,7 +28,7 @@ fun Guild.queue(
         Launcher.botController.playerRegistry.audioPlayerManager.loadItem(identifier, loader)
                 .get(10, TimeUnit.SECONDS)
         loader.loaded
-    }
+    }.makeClone()
 
     if (member.voiceChannel == null) {
         (getVoiceChannel(Raws.musicChannel.id)!! as InternalVoiceChannel).handleVoiceJoin(member)

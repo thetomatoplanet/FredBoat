@@ -36,7 +36,7 @@ import com.sedmelluq.discord.lavaplayer.source.soundcloud.SoundCloudAudioSourceM
 import com.sedmelluq.discord.lavaplayer.source.twitch.TwitchStreamAudioSourceManager
 import com.sedmelluq.discord.lavaplayer.source.vimeo.VimeoAudioSourceManager
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager
-import com.sedmelluq.lava.extensions.youtuberotator.YoutubeIpRotatorSetup
+import com.sedmelluq.lava.extensions.youtuberotator.YoutubeIpRotator
 import com.sedmelluq.lava.extensions.youtuberotator.planner.AbstractRoutePlanner
 import com.sedmelluq.lava.extensions.youtuberotator.planner.BalancingIpRoutePlanner
 import com.sedmelluq.lava.extensions.youtuberotator.planner.NanoIpRoutePlanner
@@ -218,7 +218,7 @@ class AudioPlayerManagerConfiguration {
 
         val youtube = YoutubeAudioSourceManager()
         if (routePlanner != null) {
-            YoutubeIpRotatorSetup(routePlanner).forSource(youtube).setup()
+            YoutubeIpRotator.setup(youtube, routePlanner)
         }
 
         youtubeAudioSourceManager.configureRequests { config ->
@@ -267,17 +267,11 @@ class AudioPlayerManagerConfiguration {
     @Bean
     fun routePlanner(appConfig: AppConfig): AbstractRoutePlanner? {
         val rateLimitConfig = appConfig.ratelimit
-        if(rateLimitConfig == null) {
+        if (rateLimitConfig == null) {
             log.debug("No rate limit config block found, skipping setup of route planner")
             return null
         }
-        val ipBlockList = if (rateLimitConfig.balancingBlock.isNotBlank()) {
-            log.warn("Using deprecated balancingBlock config property")
-            listOf(rateLimitConfig.balancingBlock)
-        } else {
-            rateLimitConfig.ipBlocks
-        }
-        if (ipBlockList.isEmpty()) {
+        if (rateLimitConfig.ipBlocks.isEmpty()) {
             log.info("List of ip blocks is empty, skipping setup of route planner")
             return null
         }
@@ -286,7 +280,7 @@ class AudioPlayerManagerConfiguration {
         val filter = Predicate<InetAddress> {
             !blacklisted.contains(it)
         }
-        val ipBlocks = ipBlockList.map {
+        val ipBlocks = rateLimitConfig.ipBlocks.map {
             when {
                 Ipv4Block.isIpv4CidrBlock(it) -> Ipv4Block(it)
                 Ipv6Block.isIpv6CidrBlock(it) -> Ipv6Block(it)
@@ -299,7 +293,7 @@ class AudioPlayerManagerConfiguration {
             "loadbalance" -> BalancingIpRoutePlanner(ipBlocks, filter, rateLimitConfig.searchTriggersFail)
             "nanoswitch" -> NanoIpRoutePlanner(ipBlocks, rateLimitConfig.searchTriggersFail)
             "rotatingnanoswitch" -> RotatingNanoIpRoutePlanner(ipBlocks, filter, rateLimitConfig.searchTriggersFail)
-            else -> throw RuntimeException("Unknown strategy!")
+            else -> throw RuntimeException("Unknown route planner strategy!")
         }
     }
 }

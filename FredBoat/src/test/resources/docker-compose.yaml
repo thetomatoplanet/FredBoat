@@ -26,9 +26,9 @@ services:
       - 127.0.0.1:15672:15672
 
   lavalink:
-    image: fredboat/lavalink:dev-v2
+    image: fredboat/lavalink:dev
     ports:
-      - 127.0.0.1:5555:5555
+      - 127.0.0.1:2333:2333
     entrypoint:
       - java
       - -Xmx256m
@@ -43,10 +43,6 @@ services:
           "lavalink": {
             "server": {
               "password": "youshallnotpass",
-              "ws": {
-                "port": 5555,
-                "host": "0.0.0.0"
-              },
               "sources": {
                 "youtube": true,
                 "bandcamp": true,
