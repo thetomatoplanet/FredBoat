@@ -8,7 +8,11 @@ import fredboat.audio.player.VideoSelectionCache
 import fredboat.sentinel.GuildCache
 import fredboat.testutil.IntegrationTest
 import fredboat.testutil.RetryableTest
-import fredboat.testutil.sentinel.*
+import fredboat.testutil.sentinel.Raws
+import fredboat.testutil.sentinel.SentinelState
+import fredboat.testutil.sentinel.assertReply
+import fredboat.testutil.sentinel.assertRequest
+import fredboat.testutil.sentinel.delayUntil
 import fredboat.testutil.util.cachedGuild
 import fredboat.testutil.util.queue
 import org.junit.Assert
@@ -24,7 +28,7 @@ internal class PlayCommandTest(
 ) : IntegrationTest(), RetryableTest {
 
     companion object {
-        const val url = "https://www.youtube.com/watch?v=8EdW28B-In4"
+        const val url = "https://www.youtube.com/watch?v=wN5Gi2T22mI"
         const val url2 = "https://www.youtube.com/watch?v=pqUuvRkFfLI"
     }
 
