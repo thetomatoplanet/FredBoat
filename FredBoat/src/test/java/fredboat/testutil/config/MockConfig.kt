@@ -101,7 +101,7 @@ class MockConfig : AppConfig, AudioSourcesConfig, Credentials, EventLoggerConfig
     override fun getNodes() = listOf(LavalinkConfig.LavalinkNode().apply {
         name = "test-node"
         setPass("youshallnotpass")
-        setHost("ws://localhost:5555")
+        setHost("ws://localhost:2333")
     })
 
     override fun getEventLogWebhook() = ""
