@@ -45,10 +45,10 @@ class RabbitConfig {
     fun eventQueue() = Queue(SentinelExchanges.EVENTS, false)
 
     @Bean
-    fun requestExchange() = DirectExchange(SentinelExchanges.REQUESTS)
+    fun requestExchange() = DirectExchange(SentinelExchanges.REQUESTS, false, true)
 
     @Bean
-    fun requestQueue() = Queue(SentinelExchanges.REQUESTS, false)
+    fun requestQueue() = Queue(SentinelExchanges.REQUESTS, false, false, true)
 
     @Bean
     fun requestBinding(
