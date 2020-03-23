@@ -21,7 +21,7 @@ subprojects {
             shadowVersion           = '2.0.3'
             springBootVersion       = '2.0.1.RELEASE'
             propDepsVersion         = '0.0.9.RELEASE'
-            kotlinVersion           = '1.3.20'
+            kotlinVersion           = '1.3.71'
 
             //@formatter:on
         }
@@ -63,7 +63,7 @@ subprojects {
         kotlinVersion               = "${kotlinVersion}"
 
         //audio deps
-        lavaplayerVersion           = '1.3.33'
+        lavaplayerVersion           = '1.3.38'
         lavaplayerIpRotatorVersion  = '0.1.7'
         lavalinkVersion             = 'f9ab37ff88'
 
