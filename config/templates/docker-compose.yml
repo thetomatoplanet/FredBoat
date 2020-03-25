@@ -92,7 +92,7 @@ services:
     logging:
       options:
         max-size: "1g"
-        max-file: "30"
+        max-file: "2"
 
   ################################################################################
   ##                     Quarterdeck (Database Backend)
