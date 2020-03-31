@@ -45,8 +45,6 @@ class CredentialsProperties : Credentials {
 
     private var discordBotToken = ""
     private var googleApiKeys: List<String> = ArrayList()
-    private var malUser = ""
-    private var malPassword = ""
     private var imgurClientId = ""
     private var spotifyId = ""
     private var spotifySecret = ""
@@ -83,8 +81,6 @@ class CredentialsProperties : Credentials {
         return discordBotToken
     }
     override fun getGoogleKeys() = googleApiKeys
-    override fun getMalUser() = malUser
-    override fun getMalPassword() = malPassword
     override fun getImgurClientId() = imgurClientId
     override fun getSpotifyId() = spotifyId
     override fun getSpotifySecret() = spotifySecret
@@ -103,14 +99,6 @@ class CredentialsProperties : Credentials {
         if (googleApiKeys.isEmpty()) {
             log.warn("No google API keys found. Some commands may not work, check the documentation.")
         }
-    }
-
-    fun setMalUser(malUser: String) {
-        this.malUser = malUser
-    }
-
-    fun setMalPassword(malPassword: String) {
-        this.malPassword = malPassword
     }
 
     fun setImgurClientId(imgurClientId: String) {

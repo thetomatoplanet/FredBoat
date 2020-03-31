@@ -57,16 +57,6 @@ public interface Credentials {
     }
 
     /**
-     * @return MyAnimeList username
-     */
-    String getMalUser();
-
-    /**
-     * @return MyAnimeList password
-     */
-    String getMalPassword();
-
-    /**
      * @return imgur client id
      */
     String getImgurClientId();
