@@ -84,10 +84,6 @@ class MockConfig : AppConfig, AudioSourcesConfig, Credentials, EventLoggerConfig
 
     override fun getGoogleKeys() = emptyList<String>()
 
-    override fun getMalUser() = ""
-
-    override fun getMalPassword() = ""
-
     override fun getImgurClientId() = ""
 
     override fun getSpotifyId() = ""
